@@ -114,6 +114,9 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:9990;
 .style-card.active{border-color:var(--hot);background:rgba(255,32,112,.08)}
 .sc-ico{font-size:24px;flex-shrink:0}
 .sc-name{font-family:"Bangers",sans-serif;font-size:15px;letter-spacing:.5px;color:var(--text)}
+.style-cat-tabs{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap}
+.sctab{padding:3px 9px;border-radius:99px;border:1px solid var(--border2);background:rgba(255,255,255,.04);color:var(--text3);font-family:"Space Mono",monospace;font-size:7px;cursor:pointer;transition:all .2s;letter-spacing:1px}
+.sctab.active{border-color:var(--hot);color:var(--hot);background:rgba(255,32,112,.08)}
 .sc-desc{font-family:"Space Mono",monospace;font-size:8px;color:var(--text3);margin-top:2px;line-height:1.4}
 .pal-row{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:12px}
 .psw{border-radius:var(--r);border:2px solid var(--border);cursor:pointer;transition:all .2s;padding:6px 5px;text-align:center}
@@ -170,6 +173,9 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:9990;
 .center{background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;gap:10px;position:relative;overflow:hidden}
 .center::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 20%,rgba(192,96,255,.05) 0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(255,32,112,.05) 0%,transparent 50%);pointer-events:none}
 .canvas-lbl{font-family:"Space Mono",monospace;font-size:8px;letter-spacing:3px;color:var(--text3);text-transform:uppercase;position:relative;z-index:1}
+.ratio-row{display:flex;gap:4px;justify-content:center;margin:5px 0;position:relative;z-index:1}
+.rbtn{padding:3px 7px;border-radius:99px;border:1px solid var(--border2);background:rgba(255,255,255,.04);color:var(--text3);font-family:"Space Mono",monospace;font-size:7px;cursor:pointer;transition:all .2s;letter-spacing:1px}
+.rbtn.sel,.rbtn:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(0,245,228,.08)}
 .poster-wrap{position:relative;z-index:1;width:min(230px,calc((100vh - 180px) * 0.667));aspect-ratio:2/3}
 .poster-frame{width:100%;height:100%;border-radius:12px;border:2px solid rgba(255,255,255,.1);background:var(--ink3);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;box-shadow:0 0 0 1px rgba(255,255,255,.05),0 20px 50px rgba(0,0,0,.8);transition:all .4s}
 .poster-frame.loading{border-color:var(--hot);box-shadow:0 0 40px rgba(255,32,112,.2),0 20px 50px rgba(0,0,0,.8)}
@@ -365,20 +371,13 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:9990;
         <div class="film-grid" id="filmGrid"></div>
         <div class="sep"></div>
         <div class="slbl">Art Style</div>
-        <div class="style-list">
-          <div class="style-card active" data-style="portrait" onclick="pickStyle(this)">
-            <div class="sc-ico">&#127914;</div>
-            <div><div class="sc-name">Split Portrait</div><div class="sc-desc">Pop-art collage with floating sticker icons</div></div>
-          </div>
-          <div class="style-card" data-style="comic" onclick="pickStyle(this)">
-            <div class="sc-ico">&#128240;</div>
-            <div><div class="sc-name">Comic Panel Grid</div><div class="sc-desc">Structured panels packed with chaotic objects</div></div>
-          </div>
-          <div class="style-card" data-style="exploding" onclick="pickStyle(this)">
-            <div class="sc-ico">&#128165;</div>
-            <div><div class="sc-name">Exploding Head</div><div class="sc-desc">Central face with elements bursting outward</div></div>
-          </div>
+        <div class="style-cat-tabs" id="styleCatTabs">
+          <button class="sctab active" data-cat="layout" onclick="filterStyleCat(this)">LAYOUT</button>
+          <button class="sctab" data-cat="film" onclick="filterStyleCat(this)">FILM</button>
+          <button class="sctab" data-cat="art" onclick="filterStyleCat(this)">ART</button>
+          <button class="sctab" data-cat="all" onclick="filterStyleCat(this)">ALL</button>
         </div>
+        <div class="style-list" id="styleList"></div>
         <div class="sep"></div>
         <div class="slbl">Color Palette</div>
         <div class="pal-row">
@@ -435,8 +434,15 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:9990;
   </div>
 
   <div class="center">
-    <div class="canvas-lbl">20 &times; 30 Canvas Preview</div>
-    <div class="poster-wrap">
+    <div class="canvas-lbl" id="canvasLbl">POSTER &middot; 9:16</div>
+    <div class="ratio-row">
+      <button class="rbtn" data-ratio="9:16"  data-css="9/16"  data-label="POSTER &middot; 9:16"  onclick="pickRatio(this)">9:16</button>
+      <button class="rbtn" data-ratio="3:4"   data-css="3/4"   data-label="COVER &middot; 3:4"    onclick="pickRatio(this)">3:4</button>
+      <button class="rbtn" data-ratio="1:1"   data-css="1/1"   data-label="SQUARE &middot; 1:1"   onclick="pickRatio(this)">1:1</button>
+      <button class="rbtn" data-ratio="4:3"   data-css="4/3"   data-label="WIDE &middot; 4:3"     onclick="pickRatio(this)">4:3</button>
+      <button class="rbtn" data-ratio="16:9"  data-css="16/9"  data-label="BANNER &middot; 16:9"  onclick="pickRatio(this)">16:9</button>
+    </div>
+    <div class="poster-wrap" id="posterWrap">
       <div class="poster-frame" id="posterFrame">
         <div class="poster-ph">
           <div class="pph-ico"><img src="data:image/png;base64,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" alt=""></div>
@@ -519,7 +525,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:9990;
     <!-- API Key Tab -->
     <div id="stab-pg-key">
       <div class="modal-sub">Stored in your browser only. Never sent anywhere except Google.</div>
-      <div class="modal-info"><p>&#10003; Free: gemini-2.0-flash-lite &nbsp;&#10003; Paid: gemini-2.0-flash, 1.5-pro<br>&#10003; Get a free key at aistudio.google.com</p></div>
+      <div class="modal-info"><p>&#10003; Used for: prompt enhancement only (Gemini text API)<br>&#10003; Image generation via Pollinations.ai &mdash; free, no key needed</p></div>
       <input class="modal-inp" id="apiInp" type="password" placeholder="AIza..." autocomplete="off">
       <div id="modelRow" style="display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap">
         <div style="font-family:Space Mono,monospace;font-size:8px;color:var(--text3);padding:5px 2px">Set API key to load models</div>
@@ -575,9 +581,24 @@ var PALETTES = {
   "noir":   "Cinematic noir: midnight navy, teal, seafoam, cool silver on black background."
 };
 var STYLES = {
-  "portrait":  "Single cohesive centered pop-art portrait. STRICTLY NO vertical symmetry. STRICTLY NO mirrored or split-face. ONE unified face.",
-  "comic":     "Structured comic book panel grid, multiple panels, chaotic collaged objects, speech bubbles, bold black outlines.",
-  "exploding": "Central portrait head with all collage elements explosively bursting outward in all directions."
+  // LAYOUT
+  "portrait":  { label:"Split Portrait",   icon:"🎭", desc:"Pop-art collage with floating icons",   cat:"layout", style:"Single cohesive centered pop-art portrait. ONE unified face, STRICTLY NO mirrored or split-face.", visual:"Bold pop-art comic illustration. Thick black outlines. Flat cel-shading. White-bordered floating 2D vector sticker icons. Ben-Day dot halftone background." },
+  "comic":     { label:"Comic Panel Grid", icon:"📰", desc:"Multi-panel comic strip layout",         cat:"layout", style:"Structured comic book panel grid. 4-6 panels, each showing a different scene or character moment. Speech bubbles, action lines, bold panel borders.", visual:"Classic American comic book art style. Thick black panel borders. Speech bubbles with bold text. Ink hatching and cross-hatching for shadows. Bright primary colors." },
+  "exploding": { label:"Exploding Head",   icon:"💥", desc:"Central face, elements burst outward",   cat:"layout", style:"Central portrait face at the core with all icons, objects and elements EXPLOSIVELY bursting radially outward from the head in all directions like a starburst.", visual:"Dynamic explosive pop-art. Motion lines radiating outward. Bold contrasting colors. Flat vector icons with thick outlines scattered at all angles." },
+  "minimal":   { label:"Minimalist",       icon:"◻️", desc:"Clean bold shapes, negative space",      cat:"layout", style:"Extreme minimalism. ONE central bold graphic element. Large negative space. Simple geometric shapes. Maximum 3 colors. Swiss poster design principles.", visual:"Swiss International Style poster. Clean sans-serif typography. Geometric shapes only. Flat colors, zero gradients, zero texture. Stark negative space." },
+  "collage":   { label:"Retro Collage",    icon:"✂️", desc:"Cut-and-paste magazine collage",         cat:"layout", style:"Retro cut-and-paste collage aesthetic. Overlapping torn paper edges, mixed typography at angles, vintage magazine clipping textures. Elements layered at chaotic angles.", visual:"1970s punk zine collage art. Torn paper textures. Mixed font sizes at angles. Visible glue marks. Grainy texture overlay. Muted vintage color palette with pop accents." },
+  // FILM STYLES
+  "disney":    { label:"Disney Animated",  icon:"✨", desc:"Disney feature film art style",          cat:"film",   style:"Official Disney animated feature poster style. Heroic protagonist centered, magical swirling backgrounds, enchanted atmosphere. Characters have Disney's signature large expressive eyes and smooth rounded forms.", visual:"Disney animation studio art style. Soft watercolor-like backgrounds. Smooth cel-shaded characters. Sparkle and glow effects. Warm inviting color palette. Painterly depth with soft light bloom." },
+  "pixar":     { label:"Pixar 3D",         icon:"🎈", desc:"Pixar-style 3D rendered poster",         cat:"film",   style:"Pixar Animation Studios style 3D render. Rounded cartoony 3D characters with subsurface skin scattering. Richly detailed environments. Cinematic lighting.", visual:"Pixar CGI render style. Soft ambient occlusion. Global illumination. Richly textured surfaces. Cinematic depth of field. Warm Pixar color grading." },
+  "anime":     { label:"Anime Key Visual", icon:"🌸", desc:"Japanese anime theatrical poster",       cat:"film",   style:"Japanese anime theatrical key visual. Dramatic character poses, detailed linework, expressive large eyes, speed lines, manga-inspired typography. Shonen or shojo aesthetic depending on tone.", visual:"Japanese anime illustration style. Clean precise linework. Cel-shaded with sharp shadow cutoffs. Screen tones. Dramatic speed lines. Vibrant saturated colors." },
+  "horror":    { label:"70s Horror",       icon:"🩸", desc:"Vintage grindhouse horror poster",       cat:"film",   style:"1970s grindhouse horror movie poster. Hand-painted feel, dripping gore typography, dramatic chiaroscuro lighting, sinister atmosphere. Lurid exploitation film aesthetic.", visual:"Vintage 1970s horror movie poster painting style. Hand-painted airbrush look. Deep shadows with stark rim lighting. Distressed paper texture. Lurid color scheme of deep reds, blacks and sickly greens." },
+  "noir":      { label:"Film Noir",        icon:"🕵️", desc:"Black & white cinematic noir",           cat:"film",   style:"Classic 1940s-50s film noir poster. High contrast black and white with single color accent. Long shadows, rain-slicked streets, femme fatale or detective silhouette. Venetian blind shadow patterns.", visual:"Film noir style. Deep chiaroscuro black and white illustration. Single vivid accent color (red or gold). Sharp angular shadows. Crosshatch ink texture. Moody atmospheric depth." },
+  "western":   { label:"Spaghetti Western",icon:"🤠", desc:"Sergio Leone style epic western",        cat:"film",   style:"Spaghetti Western epic movie poster. Extreme close-up faces with weathered expressions, vast desert landscapes, dramatic sunset skies. Sergio Leone style composition.", visual:"1960s Italian western poster painting. Rough oil paint texture. Extreme perspective. Burnt orange and dusty brown tones. Dramatic sky with lens flare sun. Gritty weathered aesthetic." },
+  // ART MOVEMENTS  
+  "bauhaus":   { label:"Bauhaus",          icon:"⬡",  desc:"German modernist geometric design",     cat:"art",    style:"Bauhaus design school poster aesthetic. Strict geometric composition, primary colors only, sans-serif typography, functional beauty. Herbert Bayer or Joost Schmidt style.", visual:"Bauhaus graphic design. Primary colors: red, blue, yellow, black, white only. Geometric shapes: circles, triangles, rectangles. No decoration, pure form. Bold sans-serif text." },
+  "ukiyo":     { label:"Ukiyo-e",          icon:"🌊", desc:"Japanese woodblock print style",         cat:"art",    style:"Traditional Japanese ukiyo-e woodblock print style. Flat areas of color separated by bold outlines, stylized wave and cloud motifs, decorative patterns, elegant composition.", visual:"Japanese ukiyo-e woodblock print. Flat color areas. Bold black outlines. No shading gradients. Decorative pattern fills. Muted earth tones with ink black and accent red." },
+  "propaganda":{ label:"Soviet Poster",   icon:"⭐", desc:"Bold constructivist propaganda art",     cat:"art",    style:"Soviet constructivist propaganda poster. Diagonal dynamic compositions, heroic worker figures viewed from below, bold geometric shapes, limited color palette, strong typography.", visual:"Soviet constructivist poster art. Red, black, white color palette. Diagonal aggressive composition. Flat geometric shapes. Bold condensed sans-serif typography. Strong shadows." },
+  "neon":      { label:"Synthwave Neon",   icon:"🌆", desc:"Retrowave neon city aesthetic",          cat:"art",    style:"1980s synthwave retrofuturist aesthetic. Neon grid perspective, chrome text, sunset gradient sky, palm tree silhouettes, retro computer graphics feel.", visual:"Synthwave aesthetic. Neon pink, cyan and purple color palette. Perspective grid floor. Gradient sunset sky. Chrome metallic text. Lens flares. Dark atmospheric background with neon glow bloom." },
 };
 var CHAOS_LABELS = ["ULTRA MINIMAL","CLEAN FOCUSED","BALANCED POP-ART","HIGH ENERGY","MAXIMUM CHAOS"];
 
@@ -589,6 +610,7 @@ if (_old.indexOf(selModel) >= 0) { selModel = "gemini-2.0-flash-lite"; localStor
 var selGenre  = "";
 var selFilmId = "";
 var selStyle  = "portrait";
+var selRatio  = "9:16"; // default tall portrait
 var selPal    = "neon";
 var chaos     = 55;
 var elemCat   = "characters";
@@ -631,6 +653,8 @@ document.addEventListener("DOMContentLoaded", function() {
   restoreModel();
   updateChaos(55);
   renderFilmGrid();
+  var defaultRbtn = document.querySelector(".rbtn[data-ratio='9:16']"); if (defaultRbtn) defaultRbtn.classList.add("sel");
+  renderStyleList("layout");
   renderNotes();
   renderLibrary();
   updateBadges();
@@ -837,6 +861,16 @@ function pickFilm(id) {
   if (f) { setLight("d-film","g","v-film", f.title.slice(0,10).toUpperCase()); toast(f.title + " selected"); }
   updateSpecCounts();
 }
+function pickRatio(btn) {
+  document.querySelectorAll(".rbtn").forEach(function(b) { b.classList.remove("sel"); });
+  btn.classList.add("sel");
+  selRatio = btn.dataset.ratio;
+  var cssRatio = btn.dataset.css;
+  var label    = btn.dataset.label;
+  document.getElementById("canvasLbl").innerHTML = label;
+  document.getElementById("posterWrap").style.aspectRatio = cssRatio;
+  // update prompt FORMAT line handled in buildPrompt
+}
 function pickGenre(btn, g) {
   document.querySelectorAll(".gchip").forEach(function(c) { c.classList.remove("active"); });
   if (selGenre === g) { selGenre = ""; renderFilmGrid(); }
@@ -860,6 +894,27 @@ async function researchFilm() {
 }
 
 // Style / palette / chaos
+var selStyleCat = "layout";
+function renderStyleList(cat) {
+  var list = document.getElementById("styleList"); if (!list) return;
+  var html = "";
+  Object.keys(STYLES).forEach(function(key) {
+    var s = STYLES[key];
+    if (cat !== "all" && s.cat !== cat) return;
+    var active = key === selStyle ? " active" : "";
+    html += "<div class=\"style-card" + active + "\" data-style=\"" + key + "\" onclick=\"pickStyle(this)\">"
+          + "<div class=\"sc-ico\">" + s.icon + "</div>"
+          + "<div><div class=\"sc-name\">" + s.label + "</div><div class=\"sc-desc\">" + s.desc + "</div></div>"
+          + "</div>";
+  });
+  list.innerHTML = html;
+}
+function filterStyleCat(btn) {
+  document.querySelectorAll(".sctab").forEach(function(b) { b.classList.remove("active"); });
+  btn.classList.add("active");
+  selStyleCat = btn.dataset.cat;
+  renderStyleList(selStyleCat);
+}
 function pickStyle(el) {
   document.querySelectorAll(".style-card").forEach(function(s) { s.classList.remove("active"); });
   el.classList.add("active"); selStyle = el.dataset.style;
@@ -1006,7 +1061,8 @@ function buildPrompt() {
   var ctitle  = document.getElementById("customTitle") ? document.getElementById("customTitle").value : "";
   var cplate  = document.getElementById("customPlate") ? document.getElementById("customPlate").value : "";
   var p = "Pop-art movie poster: \"" + film.title + "\" (" + film.year + "), " + film.genre + ".\n";
-  p += "STYLE: " + STYLES[selStyle] + "\n";
+  var styleObj = STYLES[selStyle] || STYLES["portrait"];
+  p += "STYLE: " + styleObj.style + "\n";
   p += "CHARACTERS: " + chars + "\n";
   p += "DENSITY: " + density + "\n";
   p += "PALETTE: " + PALETTES[selPal] + "\n";
@@ -1016,9 +1072,9 @@ function buildPrompt() {
   if (ctitle) p += "MAIN TITLE: \"" + ctitle + "\"\n";
   if (cplate) p += "LICENSE PLATE: \"" + cplate + "\"\n";
   p += "LAYER ORDER: " + selElems.map(function(e) { return e.n; }).join(" > ") + "\n";
-  p += "VISUAL: Bold pop-art comic illustration. White-bordered floating 2D vector sticker icons. Thick black outlines. Flat cel-shading. Ben-Day dot background.\n";
+  p += "VISUAL: " + styleObj.visual + "\n";
   p += "NEGATIVE: no photorealism, no blurry edges, no symmetry lines, no mirrored effects.\n";
-  p += "FORMAT: Vertical 2:3 portrait. 20x30 canvas 300 DPI.";
+  p += "FORMAT: Aspect ratio " + selRatio + ". High-resolution print quality.";
   return p;
 }
 
@@ -1030,7 +1086,7 @@ async function generatePoster() {
   var pb = document.getElementById("promptBox"); pb.textContent = curPrompt; pb.style.display = "block";
   var frame = document.getElementById("posterFrame");
   frame.classList.add("loading");
-  var msgs = ["Consulting Gemini...","Crafting recipe...","Sending to renderer...","Composing artwork..."];
+  var msgs = ["Consulting Gemini...","Crafting prompt...","Sending to Pollinations...","Composing artwork..."];
   var mi = 0;
   frame.innerHTML = '<div style="text-align:center;padding:20px"><div class="loader-ring"></div><div class="loader-msg" id="lmsg">' + msgs[0] + '</div></div>';
   var mint = setInterval(function() { mi = (mi+1) % msgs.length; var el = document.getElementById("lmsg"); if (el) el.textContent = msgs[mi]; }, 2000);
@@ -1039,26 +1095,39 @@ async function generatePoster() {
   setLight("d-gen","y","v-gen","RUNNING");
   try {
     var enhanced = await callGemini(
-      "Enhance this image generation prompt to be extremely precise, 200-250 words. Specific hex colors, exact poses, icon placement. Preserve all rules.\n\n" + curPrompt,
-      "You are a professional AI image prompt engineer for pop-art posters. Output only the enhanced prompt."
+      "Enhance this image generation prompt to be extremely precise, 200-250 words. Specific hex colors, exact poses, icon placement. Preserve all rules. CRITICAL: Any text inside double quotes (\"...\") or after MAIN TITLE:, LICENSE PLATE:, or QUOTES/TEXT: must appear VERBATIM and UNCHANGED in your output — do NOT translate, paraphrase, or alter them in any way.\n\n" + curPrompt,
+      "You are a professional AI image prompt engineer for pop-art posters. Output only the enhanced prompt. You MUST copy any quoted text strings exactly as written — never translate or change them."
     );
-    var seed = Math.floor(Math.random() * 999999);
-    var enc = encodeURIComponent((enhanced || curPrompt).slice(0, 600));
-    var url = "https://image.pollinations.ai/prompt/" + enc + "?width=560&height=840&seed=" + seed + "&model=flux&nologo=true&enhance=true";
-    await new Promise(function(res, rej) {
-      var img = new Image();
-      img.onload = res;
-      img.onerror = function() { rej(new Error("Render failed. Try regenerating.")); };
-      img.src = url;
-      setTimeout(function() { rej(new Error("Timed out (45s). Try again.")); }, 45000);
-    });
-    clearInterval(mint); imgUrl = url;
+    // Re-inject user-typed literals that Gemini may have changed
+    var imagePrompt = enhanced || curPrompt;
+    var ctitleVal = document.getElementById("customTitle") ? document.getElementById("customTitle").value.trim() : "";
+    var cplateVal = document.getElementById("customPlate") ? document.getElementById("customPlate").value.trim() : "";
+    if (ctitleVal && imagePrompt.indexOf(ctitleVal) < 0) {
+      // Gemini lost the title — strip any MAIN TITLE line and re-append original
+      imagePrompt = imagePrompt.split("\n").filter(function(l){return l.indexOf("MAIN TITLE:")<0;}).join("\n").trim();
+      imagePrompt += "\nMAIN TITLE: \"" + ctitleVal + "\"";
+    }
+    if (cplateVal && imagePrompt.indexOf(cplateVal) < 0) {
+      imagePrompt = imagePrompt.split("\n").filter(function(l){return l.indexOf("LICENSE PLATE:")<0;}).join("\n").trim();
+      imagePrompt += "\nLICENSE PLATE: \"" + cplateVal + "\"";
+    }
+    if (customQuotes.length > 0) {
+      for (var _qi = 0; _qi < customQuotes.length; _qi++) {
+        if (imagePrompt.indexOf(customQuotes[_qi]) < 0) {
+          imagePrompt += "\nINCLUDE TEXT: \"" + customQuotes[_qi] + "\"";
+        }
+      }
+    }
+    imagePrompt = imagePrompt.slice(0, 2000);
+    var dataUrl = await callImagen(imagePrompt, selRatio, apiKey);
+    clearInterval(mint); imgUrl = dataUrl;
     frame.classList.remove("loading");
-    frame.innerHTML = '<img src="' + url + '" alt="poster" style="cursor:zoom-in" onclick="window.open(this.src,\'_blank\')">';
-    var dl = document.getElementById("dlBtn"); dl.href = url; dl.style.display = "inline-flex";
+    frame.innerHTML = '<img src="' + dataUrl + '" alt="poster" style="cursor:zoom-in" onclick="window.open(this.src,\'_blank\')">';
+    var dl = document.getElementById("dlBtn"); dl.href = dataUrl; dl.download = "remix-reel-poster.jpg"; dl.style.display = "inline-flex";
     pbar.classList.remove("go"); pbar.style.width = "100%";
     setTimeout(function() { pbar.style.transition = "width .8s"; pbar.style.width = "0"; setTimeout(function() { pbar.style.transition = "width .3s"; }, 900); }, 1200);
     setLight("d-gen","g","v-gen","DONE");
+    setLight("d-model","g","v-model","FLUX");
     toast("Poster generated!");
   } catch(e) {
     clearInterval(mint); frame.classList.remove("loading");
@@ -1076,6 +1145,34 @@ function printPoster() {
   var pw = window.open("","_blank");
   pw.document.write("<!DOCTYPE html><html><head><style>@page{size:20in 30in;margin:0}body{margin:0}img{width:100%;height:100vh;object-fit:contain}</style></head><body><img src='" + imgUrl + "'></body></html>");
   pw.document.close(); setTimeout(function() { pw.focus(); pw.print(); }, 500);
+}
+
+// Pollinations image generation (free, no key required)
+var RATIO_DIMS = {"9:16":"width=560&height=840","3:4":"width=600&height=800","1:1":"width=700&height=700","4:3":"width=800&height=600","16:9":"width=840&height=472"};
+async function callImagen(prompt, ratio, _key) {
+  var dims = RATIO_DIMS[ratio] || "width=560&height=840";
+  var seed = Math.floor(Math.random() * 999999);
+  var url  = "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt.slice(0,1400))
+           + "?" + dims + "&seed=" + seed + "&model=flux&nologo=true&enhance=false";
+  // Fetch as blob to enable real download and avoid cross-origin issues
+  var attempt = 0;
+  while (attempt < 3) {
+    attempt++;
+    try {
+      var resp = await Promise.race([
+        fetch(url, { mode: "cors" }),
+        new Promise(function(_, rej) { setTimeout(function() { rej(new Error("Timeout")); }, 55000); })
+      ]);
+      if (!resp.ok) throw new Error("Render failed (HTTP " + resp.status + ")");
+      var blob = await resp.blob();
+      if (!blob || blob.size < 1000) throw new Error("Empty image response");
+      return URL.createObjectURL(blob);
+    } catch(e) {
+      if (attempt >= 3) throw new Error("Render failed after 3 attempts. Pollinations may be busy — try again.");
+      toast("Renderer busy, retrying (" + attempt + "/3)...", "warn");
+      await new Promise(function(res) { setTimeout(res, 4000); });
+    }
+  }
 }
 
 // Gemini API
@@ -1143,7 +1240,6 @@ function loadLib(id) {
   setLight("d-gen","c","v-gen","LOADED"); toast(item.title + " loaded");
 }
 function renderLibrary() {
-  _clr();
   var q = (document.getElementById("libSrch") ? document.getElementById("libSrch").value : "").toLowerCase();
   var items = library.filter(function(i) { return !q || i.title.toLowerCase().indexOf(q) >= 0; });
   var c = document.getElementById("libItems"); if (!c) return;
